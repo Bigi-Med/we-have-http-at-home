@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 )
 
 var _ = net.Listen
@@ -24,6 +25,17 @@ func main() {
 	 	fmt.Println("Error accepting connection: ", err.Error())
 	 	os.Exit(1)
 	 }
-     conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
+     data := make([]byte,1024)
+     conn.Read(data)
+     str := string(data)
+     strL := strings.Split(str, "\r\n")
+     strLineSplit := strings.Split(strL[0]," ")
+     path := strLineSplit[1]
+     fmt.Printf("HTTP Request Path is : %s \n",path)
+     if path == "/" {
+         conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
+     }else{
+         conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
+     }
 
 }
