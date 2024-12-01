@@ -34,6 +34,10 @@ func main() {
      fmt.Printf("HTTP Request Path is : %s \n",path)
      if path == "/" {
          conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
+     }else if strings.HasPrefix(path,"/echo"){
+         body := strings.Split(path, "/")
+         fmt.Printf("BODY MESSAGE IS %s \n",body[2])
+         conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-Length: 3\r\n\r\n"+body[2]))
      }else{
          conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
      }
