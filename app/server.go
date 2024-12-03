@@ -5,14 +5,15 @@ import (
 	"net"
 	"os"
 	"strings"
+    "strconv"
 )
 
 var _ = net.Listen
 var _ = os.Exit
 
 func main() {
-	fmt.Println("Logs from your program will appear here!")
-
+    
+    args := os.Args[2]
 
 	 l, err := net.Listen("tcp", "0.0.0.0:4221")
      fmt.Println(l)
@@ -27,10 +28,10 @@ func main() {
             fmt.Println("Error accepting connection: ", err.Error())
             os.Exit(1)
         }
-        go acceptCon(conn)
+        go acceptCon(conn,args)
      }
  }
- func acceptCon(conn net.Conn){
+ func acceptCon(conn net.Conn, file string){
      data := make([]byte,1024)
      conn.Read(data)
      str := string(data)
@@ -48,6 +49,17 @@ func main() {
      } else if path == "/user-agent"{
          fmt.Printf("USER AGENT HEADER %s \n",strUserAgentValue[1])
          conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-Length: 11\r\n\r\n"+strUserAgentValue[1]))
+     } else if strings.HasPrefix(path,"/files"){
+         fmt.Print("Returning file content\n")
+         body := strings.Split(path, "/")
+         fPath := file+body[2]
+         fmt.Println(fPath)
+         data, err := os.ReadFile(fPath)
+         if err != nil {
+          conn.Write([]byte("HTTP/1.1 404 NOT FOUND\r\n\r\n"))  
+         }
+         length := len(data)
+         conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-type: application/octet-stream\r\nContent-Length: "+strconv.Itoa(length)+"\r\n\r\n"+string(data)))
      }else{
          conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
      }
