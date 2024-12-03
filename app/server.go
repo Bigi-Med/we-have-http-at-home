@@ -30,6 +30,7 @@ func main() {
      str := string(data)
      strL := strings.Split(str, "\r\n")
      strLineSplit := strings.Split(strL[0]," ")
+     strUserAgentValue := strings.Split(strL[2],":")
      path := strLineSplit[1]
      fmt.Printf("HTTP Request Path is : %s \n",path)
      if path == "/" {
@@ -38,6 +39,9 @@ func main() {
          body := strings.Split(path, "/")
          fmt.Printf("BODY MESSAGE IS %s \n",body[2])
          conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-Length: 3\r\n\r\n"+body[2]))
+     } else if path == "/user-agent"{
+         fmt.Printf("USER AGENT HEADER %s \n",strUserAgentValue[1])
+         conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-Length: 11\r\n\r\n"+strUserAgentValue[1]))
      }else{
          conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
      }
